@@ -1,5 +1,17 @@
 class Graph:
     def __init__(self):
+        self.girisCikislar = {}
+        self.counter = 0
+        self.visitedNodes = []
+        self.deneme = {'A': ["F", "G"],
+                       "B": ["A", "I"],
+                       "C": ["A", "D"],
+                       "D": ["C", "F"],
+                       "E": ["C", "D", "G"],
+                       "F": ["E"],
+                       "G": [],
+                       "H": ["B"],
+                       "I": ["H"]}
         self.nodes = []
         self.adjList = {}
         self.kenarSayisi = 0
@@ -130,14 +142,30 @@ class Graph:
             que.pop(0)
         print(visitedNodes)
 
-    def DFS_Arama(self, v, visitedNodes=[]):
-        visitedNodes.append(v)  # baslangic node'u
+    def DFS_Arama(self, v):
+        # nested_dict = {1: {'Giriş Derecesi': 1, 'Cikis Derecesi': 2}}
+        # alo[0] = {"Giris": 1, "Cikis": 2}
+
+        self.visitedNodes.append(v)  # baslangic node'u
         print(v, end=" ")
+        # print(v, " ulasma : ", self.counter + 1)
+        self.counter += 1
+        self.girisCikislar[v] = {
+            "Ulaşma": self.counter, "İsleme": self.counter}
 
         for komsu in self.adjList[v]:
-            if komsu not in visitedNodes:
-                self.DFS_Arama(komsu, visitedNodes)
-            print("xxx")
+            if komsu not in self.visitedNodes:
+                self.DFS_Arama(komsu)
+            # print("xxx")
+        self.counter += 1
+        # print(v, " Cikis : ", self.counter)
+
+        self.girisCikislar[v]["İsleme"] = self.counter
+
+    def dfsCheckAllNodes(self):
+        for komsu in self.adjList:
+            if komsu not in self.visitedNodes:
+                self.DFS_Arama(komsu)
 
 
 def main():
@@ -159,9 +187,18 @@ def main():
 
     print("--------")
 
-    graph.DFS_Arama(2)  # aramaya baslanacak dugum
+    graph.DFS_Arama(0)  # aramaya baslanacak dugum
+    # bazi graflarda kendi halinde gruplu nodelar oluyor bu gruptan sadece cikis node lari mevcut oluyor bunun icin butun nodelar visit edildi mi kontrol etmem gerekiyor yoksa visitedlarda o kısım dedigim grup oluyor orayı dfs ile ariyorum.
+    graph.dfsCheckAllNodes()
 
     print("\n--------")
+
+    for key, value in graph.girisCikislar.items():
+        print(key, value)
+
+    # nested_dict = {1: {'Giriş Derecesi': 1, 'Cikis Derecesi': 2}}
+
+
 #     sozluk = {}
 
 #     nested_dict = {'Giriş Dereceleri': {'key_1': 'value_1'},
@@ -172,12 +209,9 @@ def main():
 #     print(sozluk)
 
     # aranan = 3
-
     # cikisSayac = 0
     # girisSayac = 0
-
     # for key, item in graph.adjList.items():
-
     #     # cevirimli kenar mi
     #     if aranan in item and aranan == key:
     #         cikisSayac += 2
@@ -187,7 +221,6 @@ def main():
     #     elif aranan == key:
     #         girisSayac += len(item)
     # print(cikisSayac)
-
     # f = open("Komsuluk Matrisi.txt", "r")
     # matrix = []
     # matrisSatiri = 0
@@ -197,7 +230,6 @@ def main():
     #     matrisSutun = 0
     #     for x in dosyaSatiri.split(' '):
     #         if(x == "1" or x == "1\n"):
-
     #             graph.addEdge(matrisSatiri, matrisSutun)
     #         matrisSutun += 1
     #     matrisSatiri += 1
