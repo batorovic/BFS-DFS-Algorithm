@@ -63,7 +63,7 @@ class Graph:
             if aranan in item and aranan == key:
                 girisSayac += 2
                 cikisSayac += 1  # cevirimli kenar asagida lende bri tanesini icine aliyor buradad 1 +2 oldu
-            if aranan in item:
+            elif aranan in item:  # normal ifdi
                 girisSayac += 1
 
         print("Cikis Derecesi: ", cikisSayac, " Giris Derecesi: ", girisSayac)
@@ -77,8 +77,8 @@ class Graph:
             for line in inputFile:
                 matrix.append([int(x) for x in line.split(' ')])
 
-        x = 0
-        y = 0
+        # x = 0
+        # y = 0
 
         grafTuru = "YONLU"
         for x, row in enumerate(matrix):
@@ -88,7 +88,9 @@ class Graph:
                     grafTuru = "YONSUZ"
             if grafTuru == "YONSUZ":
                 break
+
         print(grafTuru)
+
         if grafTuru == "YONSUZ":
             for x, line in enumerate(matrix):
                 # TXT olarak verilen komsulum matrisi yonsuz graf oldugu icin simetrik matris oluyor. Bunun icin kosegen uzerinde 1 varsa onu da kenar sayisina ekledim.
@@ -111,6 +113,32 @@ class Graph:
 
         inputFile.close()
 
+    def BFS(self, baslangicNode):
+
+        que = []
+        visitedNodes = []
+
+        que.append(baslangicNode)
+        visitedNodes.append(baslangicNode)
+
+        while que != []:  # kuyruk bos olmayıncaya kadar
+            # dict'e key veriyorum. Gonderdigim key node oluyor. O node on komsularina bakiyorum.
+            for x in self.adjList[que[0]]:
+                if x not in visitedNodes:
+                    visitedNodes.append(x)
+                    que.append(x)
+            que.pop(0)
+        print(visitedNodes)
+
+    def DFS_Arama(self, v, visitedNodes=[]):
+        visitedNodes.append(v)  # baslangic node'u
+        print(v, end=" ")
+
+        for komsu in self.adjList[v]:
+            if komsu not in visitedNodes:
+                self.DFS_Arama(komsu, visitedNodes)
+            print("xxx")
+
 
 def main():
     graph = Graph()
@@ -119,13 +147,29 @@ def main():
     graph.printAdj()
     print("--------")
 
-    graph.girisCikisSayilari(0)  # aranan degeri parametre olarak veriyoruz.
+    graph.girisCikisSayilari(1)  # aranan degeri parametre olarak veriyoruz.
 
     print("--------")
 
     graph.kenarSayilari()
 
     print("--------")
+
+    graph.BFS(0)  # aramaya baslama node u
+
+    print("--------")
+
+    graph.DFS_Arama(2)  # aramaya baslanacak dugum
+
+    print("\n--------")
+#     sozluk = {}
+
+#     nested_dict = {'Giriş Dereceleri': {'key_1': 'value_1'},
+#                 'Cikis Dereceleri': {'key_2': 'value_2'}}
+#    for node in graph.nodes:
+#         sozluk[node] = [{"Giris: :", []}]
+
+#     print(sozluk)
 
     # aranan = 3
 
