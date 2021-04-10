@@ -1,6 +1,6 @@
 class Graph:
     def __init__(self):
-        self.girisCikislar = {}
+        self.ulasmaIsleme = {}
         self.counter = 0
         self.visitedNodes = []
         self.deneme = {'A': ["F", "G"],
@@ -15,7 +15,7 @@ class Graph:
         self.nodes = []
         self.adjList = {}
         self.kenarSayisi = 0
-        self.komsulukMatrix = []
+        # self.komsulukMatrix = []
         # for node in self.nodes:
         #     self.adjList[node] = []
 
@@ -78,7 +78,8 @@ class Graph:
             elif aranan in item:  # normal ifdi
                 girisSayac += 1
 
-        print("Cikis Derecesi: ", cikisSayac, " Giris Derecesi: ", girisSayac)
+        print(aranan, "dugumunun:", "\nCikis Derecesi:",
+              cikisSayac, "\nGiris Derecesi:", girisSayac)
 
     def kenarSayilari(self):
         matrix = []
@@ -98,14 +99,15 @@ class Graph:
                 # son satirdan bır onceki satirda zaten son satiri kontrol ettim o yuzden satir sutun birbirine esit olmamalı.
                 if matrix[x][y] == 1 and matrix[y][x] == 1 and y != x:
                     grafTuru = "YONSUZ"
+            # ornegin hem 0,1 hemde 1,0 arasi bir kenar varsa yonsuz graf olarak kabul ettim ve donguden ciktim.
             if grafTuru == "YONSUZ":
                 break
 
-        print(grafTuru)
+        print("\nGraf turu :", grafTuru)
 
         if grafTuru == "YONSUZ":
             for x, line in enumerate(matrix):
-                # TXT olarak verilen komsulum matrisi yonsuz graf oldugu icin simetrik matris oluyor. Bunun icin kosegen uzerinde 1 varsa onu da kenar sayisina ekledim.
+                # yonsuz graf oldugu icin simetrik matris oluyor. Bunun icin kosegen uzerinde 1 varsa onu da kenar sayisina ekledim.
                 if matrix[x][x] == 1:
                     kenarSayisi += 1
                 # alt kosegenden kenar sayisini buldum.
@@ -113,15 +115,14 @@ class Graph:
                     if matrix[x][y] == 1:
                         kenarSayisi += 1
                 sutun += 1
-            print("Kenar Sayisi : ", kenarSayisi)
+            print("Kenar Sayisi :", kenarSayisi)
 
         elif grafTuru == "YONLU":
-
             for x, row in enumerate(matrix):
                 for y, column in enumerate(matrix):
                     if matrix[x][y] == 1:
                         kenarSayisi += 1
-            print("kenar : ", kenarSayisi)
+            print("Kenar Sayisi :", kenarSayisi)
 
         inputFile.close()
 
@@ -143,24 +144,19 @@ class Graph:
         print(visitedNodes)
 
     def DFS_Arama(self, v):
-        # nested_dict = {1: {'Giriş Derecesi': 1, 'Cikis Derecesi': 2}}
-        # alo[0] = {"Giris": 1, "Cikis": 2}
 
         self.visitedNodes.append(v)  # baslangic node'u
         print(v, end=" ")
-        # print(v, " ulasma : ", self.counter + 1)
         self.counter += 1
-        self.girisCikislar[v] = {
+        self.ulasmaIsleme[v] = {
             "Ulaşma": self.counter, "İsleme": self.counter}
 
         for komsu in self.adjList[v]:
             if komsu not in self.visitedNodes:
                 self.DFS_Arama(komsu)
-            # print("xxx")
         self.counter += 1
-        # print(v, " Cikis : ", self.counter)
 
-        self.girisCikislar[v]["İsleme"] = self.counter
+        self.ulasmaIsleme[v]["İsleme"] = self.counter
 
     def dfsCheckAllNodes(self):
         for komsu in self.adjList:
@@ -170,44 +166,94 @@ class Graph:
 
 def main():
     graph = Graph()
-
     graph.convertToAdjacenyList()
-    graph.printAdj()
-    print("--------")
 
-    graph.girisCikisSayilari(1)  # aranan degeri parametre olarak veriyoruz.
+    while True:
+        print("""
+              1) Grafin komsulul listesini goster.
+              2) Giris cikis sayilari :
+              3) Graftaki toplam kenar sayisi :
+              4) BFS arama:
+              5) DFS arama:
+              e) Cikis yap.
+              """)
 
-    print("--------")
+        secim = input("Secim yapiniz : ")
 
-    graph.kenarSayilari()
+        if secim == "1":
+            graph.printAdj()
 
-    print("--------")
+        elif secim == "2":
+            print("\nMevcut dugumler : ", graph.nodes)
+            node = input(
+                "Hangi dugumun giris - cikis derecesini ogrenmek istiyorsunuz ? ")
 
-    graph.BFS(0)  # aramaya baslama node u
+            print()
+            graph.girisCikisSayilari(int(node))
+        elif secim == "3":
+            graph.kenarSayilari()
 
-    print("--------")
+        elif secim == "4":
+            print("\nMevcut dugumler : ", graph.nodes)
+            node = input(
+                "Hangi dugumden aramaya baslamak istiyorsunuz : ")
+            print()
+            graph.BFS(int(node))
 
-    graph.DFS_Arama(0)  # aramaya baslanacak dugum
-    # bazi graflarda kendi halinde gruplu nodelar oluyor bu gruptan sadece cikis node lari mevcut oluyor bunun icin butun nodelar visit edildi mi kontrol etmem gerekiyor yoksa visitedlarda o kısım dedigim grup oluyor orayı dfs ile ariyorum.
-    graph.dfsCheckAllNodes()
+        elif secim == "5":
+            print("\nMevcut dugumler : ", graph.nodes)
+            node = input(
+                "Hangi dugumden aramaya baslamak istiyorsunuz : ")
+            print("\nDFS arama sonucu dolasma sirasi : ", end=" ")
+            graph.DFS_Arama(int(node))
+            # bazi graflarda kendi halinde gruplu nodelar oluyor bu gruptan sadece cikis node lari mevcut oluyor bunun icin butun nodelar visit edildi mi kontrol etmem gerekiyor visited node larda yoksa o kısım dedigim grup oluyor orayı dfs ile ariyorum.
+            graph.dfsCheckAllNodes()
 
-    print("\n--------")
+            print("\n")
 
-    for key, value in graph.girisCikislar.items():
-        print(key, value)
+            # Ulasma isleme sayilarini ekrana basma.
+            for key, value in graph.ulasmaIsleme.items():
+                print(key, value)
+
+        elif secim.lower() == "e":
+            exit()
+
+    # graph = Graph()
+    # graph.convertToAdjacenyList()
+
+    # graph.printAdj()
+
+    # print("--------")
+
+    # graph.girisCikisSayilari(1)  # aranan degeri parametre olarak veriyoruz.
+
+    # print("--------")
+
+    # graph.kenarSayilari()
+
+    # print("--------")
+
+    # graph.BFS(0)  # aramaya baslama node u
+
+    # print("--------")
+
+    # graph.DFS_Arama(0)  # aramaya baslanacak dugum
+    # # bazi graflarda kendi halinde gruplu nodelar oluyor bu gruptan sadece cikis node lari mevcut oluyor bunun icin butun nodelar visit edildi mi kontrol etmem gerekiyor yoksa visitedlarda o kısım dedigim grup oluyor orayı dfs ile ariyorum.
+    # graph.dfsCheckAllNodes()
+
+    # print("\n--------")
+
+    # for key, value in graph.ulasmaIsleme.items():
+    #     print(key, value)
+
 
     # nested_dict = {1: {'Giriş Derecesi': 1, 'Cikis Derecesi': 2}}
-
-
 #     sozluk = {}
-
 #     nested_dict = {'Giriş Dereceleri': {'key_1': 'value_1'},
 #                 'Cikis Dereceleri': {'key_2': 'value_2'}}
 #    for node in graph.nodes:
 #         sozluk[node] = [{"Giris: :", []}]
-
 #     print(sozluk)
-
     # aranan = 3
     # cikisSayac = 0
     # girisSayac = 0
