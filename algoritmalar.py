@@ -3,67 +3,38 @@ class Graph:
         self.ulasmaIsleme = {}
         self.counter = 0
         self.visitedNodes = []
-        self.deneme = {'A': ["F", "G"],
-                       "B": ["A", "I"],
-                       "C": ["A", "D"],
-                       "D": ["C", "F"],
-                       "E": ["C", "D", "G"],
-                       "F": ["E"],
-                       "G": [],
-                       "H": ["B"],
-                       "I": ["H"]}
         self.nodes = []
         self.adjList = {}
-        self.kenarSayisi = 0
-        # self.komsulukMatrix = []
-        # for node in self.nodes:
-        #     self.adjList[node] = []
 
-    def printAdj(self):
+    def grafiGoster(self):
         for node in self.nodes:
             print(node, ":", self.adjList[node])
 
     def addEdge(self, kose, kenar):
         self.adjList[kose].append(kenar)
 
-        # self.adjList[kenar].append(kose)
-
     def convertToAdjacenyList(self):
         f = open("Komsuluk Matrisi.txt", "r")
 
         matrisSatiri = 0
         matrisSutun = 0
-        karakter = 65
-        karakter1 = 65
 
-        matrix = []
-
+        # dosyadan okuma islemi
         for dosyaSatiri in f.read().splitlines():
-            # matrix.append([int(x) for x in satir.split(' ')])
             matrisSutun = 0
-            karakter1 = 65
 
-            # self.adjList[chr(karakter)] = []  # satir
-            # self.nodes.append(chr(karakter))  # satir
+            self.adjList[matrisSatiri] = []
+            self.nodes.append(matrisSatiri)
 
-            self.adjList[matrisSatiri] = []  # satir
-            self.nodes.append(matrisSatiri)  # satir
+            # komsuluk matrisinden komsuluk listesi olusturdum.
             for x in dosyaSatiri.split(' '):
-
                 if x == "1":
-
-                    # self.addEdge(chr(karakter), chr(karakter1))  # satir  sutun
-                    self.addEdge(matrisSatiri, matrisSutun)  # satir  sutun
-
-                    # graph.addEdge(matrisSatiri, matrisSutun)
+                    self.addEdge(matrisSatiri, matrisSutun)
                 matrisSutun += 1
-                karakter1 += 1
             matrisSatiri += 1
-            karakter += 1
         f.close()
 
     def girisCikisSayilari(self, aranan):
-
         girisSayac = 0
         cikisSayac = 0
 
@@ -74,57 +45,23 @@ class Graph:
             # cevirimli kenar mi
             if aranan in item and aranan == key:
                 girisSayac += 2
-                cikisSayac += 1  # cevirimli kenar asagida lende bri tanesini icine aliyor buradad 1 +2 oldu
-            elif aranan in item:  # normal ifdi
+                # Cikis sayaci +1 yapmamin sebebi 41.satirda zaten koseden cikis yapanlarin sayisini almistim. Cevirimli kenar oldugu icin +1 yapmam yeterli oldu.
+                cikisSayac += 1
+            elif aranan in item:
                 girisSayac += 1
 
-        print(aranan, "dugumunun:", "\nCikis Derecesi:",
-              cikisSayac, "\nGiris Derecesi:", girisSayac)
+        print(aranan, "dugumunun:", "\nGiris Derecesi:",
+              girisSayac, "\nCikis Derecesi:", cikisSayac)
 
     def kenarSayilari(self):
-        matrix = []
+
         kenarSayisi = 0
-        sutun = 0
 
-        with open("Komsuluk Matrisi.txt") as inputFile:
-            for line in inputFile:
-                matrix.append([int(x) for x in line.split(' ')])
+        # grafta birbirne bagli olan koselerin kenar sayisini buldum.
+        for value in self.adjList:
+            kenarSayisi += len(self.adjList[value])
 
-        # x = 0
-        # y = 0
-
-        grafTuru = "YONLU"
-        for x, row in enumerate(matrix):
-            for y, column in enumerate(matrix):
-                # son satirdan bır onceki satirda zaten son satiri kontrol ettim o yuzden satir sutun birbirine esit olmamalı.
-                if matrix[x][y] == 1 and matrix[y][x] == 1 and y != x:
-                    grafTuru = "YONSUZ"
-            # ornegin hem 0,1 hemde 1,0 arasi bir kenar varsa yonsuz graf olarak kabul ettim ve donguden ciktim.
-            if grafTuru == "YONSUZ":
-                break
-
-        print("\nGraf turu :", grafTuru)
-
-        if grafTuru == "YONSUZ":
-            for x, line in enumerate(matrix):
-                # yonsuz graf oldugu icin simetrik matris oluyor. Bunun icin kosegen uzerinde 1 varsa onu da kenar sayisina ekledim.
-                if matrix[x][x] == 1:
-                    kenarSayisi += 1
-                # alt kosegenden kenar sayisini buldum.
-                for y in range(sutun):
-                    if matrix[x][y] == 1:
-                        kenarSayisi += 1
-                sutun += 1
-            print("Kenar Sayisi :", kenarSayisi)
-
-        elif grafTuru == "YONLU":
-            for x, row in enumerate(matrix):
-                for y, column in enumerate(matrix):
-                    if matrix[x][y] == 1:
-                        kenarSayisi += 1
-            print("Kenar Sayisi :", kenarSayisi)
-
-        inputFile.close()
+        print("\nKenar Sayisi :", kenarSayisi)
 
     def BFS(self, baslangicNode):
 
@@ -151,6 +88,7 @@ class Graph:
         self.ulasmaIsleme[v] = {
             "Ulaşma": self.counter, "İsleme": self.counter}
 
+        # recursive bir sekilde grafta dolasma
         for komsu in self.adjList[v]:
             if komsu not in self.visitedNodes:
                 self.DFS_Arama(komsu)
@@ -158,6 +96,7 @@ class Graph:
 
         self.ulasmaIsleme[v]["İsleme"] = self.counter
 
+    # bazi graflarda kendi halinde gruplu nodelar oluyor bu gruptan sadece cikis node lari mevcut oluyor bunun icin butun nodelar visit edildi mi kontrol etmem gerekiyor visited node larda yoksa o kısım dedigim grup oluyor orayı dfs ile ariyorum.
     def dfsCheckAllNodes(self):
         for komsu in self.adjList:
             if komsu not in self.visitedNodes:
@@ -166,22 +105,22 @@ class Graph:
 
 def main():
     graph = Graph()
-    graph.convertToAdjacenyList()
+    graph.convertToAdjacenyList()  # komsuluk listesine ceviriyorum.
 
     while True:
         print("""
-              1) Grafin komsulul listesini goster.
-              2) Giris cikis sayilari :
-              3) Graftaki toplam kenar sayisi :
-              4) BFS arama:
-              5) DFS arama:
+              1) Grafin komsuluk listesini goster.
+              2) Giris cikis sayilari
+              3) Graftaki toplam kenar sayisi
+              4) BFS arama
+              5) DFS arama
               e) Cikis yap.
               """)
 
         secim = input("Secim yapiniz : ")
 
         if secim == "1":
-            graph.printAdj()
+            graph.grafiGoster()
 
         elif secim == "2":
             print("\nMevcut dugumler : ", graph.nodes)
@@ -206,82 +145,20 @@ def main():
                 "Hangi dugumden aramaya baslamak istiyorsunuz : ")
             print("\nDFS arama sonucu dolasma sirasi : ", end=" ")
             graph.DFS_Arama(int(node))
-            # bazi graflarda kendi halinde gruplu nodelar oluyor bu gruptan sadece cikis node lari mevcut oluyor bunun icin butun nodelar visit edildi mi kontrol etmem gerekiyor visited node larda yoksa o kısım dedigim grup oluyor orayı dfs ile ariyorum.
+
             graph.dfsCheckAllNodes()
 
             print("\n")
 
-            # Ulasma isleme sayilarini ekrana basma.
+            # Ulasma isleme sayilarini ekrana yazdirma.
             for key, value in graph.ulasmaIsleme.items():
-                print(key, value)
+                print(key, ":", value)
 
         elif secim.lower() == "e":
             exit()
-
-    # graph = Graph()
-    # graph.convertToAdjacenyList()
-
-    # graph.printAdj()
-
-    # print("--------")
-
-    # graph.girisCikisSayilari(1)  # aranan degeri parametre olarak veriyoruz.
-
-    # print("--------")
-
-    # graph.kenarSayilari()
-
-    # print("--------")
-
-    # graph.BFS(0)  # aramaya baslama node u
-
-    # print("--------")
-
-    # graph.DFS_Arama(0)  # aramaya baslanacak dugum
-    # # bazi graflarda kendi halinde gruplu nodelar oluyor bu gruptan sadece cikis node lari mevcut oluyor bunun icin butun nodelar visit edildi mi kontrol etmem gerekiyor yoksa visitedlarda o kısım dedigim grup oluyor orayı dfs ile ariyorum.
-    # graph.dfsCheckAllNodes()
-
-    # print("\n--------")
-
-    # for key, value in graph.ulasmaIsleme.items():
-    #     print(key, value)
+        else:
+            print("\nGecerli secim yapiniz !")
 
 
-    # nested_dict = {1: {'Giriş Derecesi': 1, 'Cikis Derecesi': 2}}
-#     sozluk = {}
-#     nested_dict = {'Giriş Dereceleri': {'key_1': 'value_1'},
-#                 'Cikis Dereceleri': {'key_2': 'value_2'}}
-#    for node in graph.nodes:
-#         sozluk[node] = [{"Giris: :", []}]
-#     print(sozluk)
-    # aranan = 3
-    # cikisSayac = 0
-    # girisSayac = 0
-    # for key, item in graph.adjList.items():
-    #     # cevirimli kenar mi
-    #     if aranan in item and aranan == key:
-    #         cikisSayac += 2
-    #         girisSayac += 2
-    #     elif aranan in item:
-    #         cikisSayac += 1
-    #     elif aranan == key:
-    #         girisSayac += len(item)
-    # print(cikisSayac)
-    # f = open("Komsuluk Matrisi.txt", "r")
-    # matrix = []
-    # matrisSatiri = 0
-    # matrisSutun = 0
-    # for dosyaSatiri in f.readlines():
-    #     # matrix.append([int(x) for x in satir.split(' ')])
-    #     matrisSutun = 0
-    #     for x in dosyaSatiri.split(' '):
-    #         if(x == "1" or x == "1\n"):
-    #             graph.addEdge(matrisSatiri, matrisSutun)
-    #         matrisSutun += 1
-    #     matrisSatiri += 1
-    # for x in range(5):
-    #     for y in range(5):
-    #         if(matrix[x][y] == 1):
-    #             graph.addEdge(x, y)
 if __name__ == "__main__":
     main()
